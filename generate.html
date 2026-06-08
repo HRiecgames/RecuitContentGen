@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitGen — Tạo bài tuyển dụng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #07090f;
+  --bg2:      #0e1118;
+  --bg3:      #151923;
+  --bg4:      #1b2030;
+  --border:   #ffffff10;
+  --border2:  #ffffff1e;
+  --blue:     #1a6fd4;
+  --blue2:    #2488f0;
+  --blue-soft:#1a6fd418;
+  --blue-glow:#1a6fd440;
+  --ice:      #a8d8ff;
+  --white:    #f0f4ff;
+  --text:     #dde4f5;
+  --text2:    #7a84a0;
+  --text3:    #424a62;
+  --success:  #2dd4a0;
+  --warning:  #f5a623;
+  --danger:   #ff5f5f;
+  --sidebar:  228px;
+  --radius:   12px;
+  --rsm:      8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Be Vietnam Pro',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;overflow-x:hidden;
+}
+/* grid bg */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:52px 52px;pointer-events:none;z-index:0;
+}
+/* blue glow top */
+body::after{
+  content:'';position:fixed;top:-120px;left:50%;
+  transform:translateX(-50%);
+  width:700px;height:400px;
+  background:radial-gradient(ellipse,var(--blue-glow) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar);min-height:100vh;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;left:0;top:0;bottom:0;z-index:10;
+}
+.sidebar-logo{
+  padding:18px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-mark{
+  width:34px;height:34px;border-radius:9px;overflow:hidden;
+  background:var(--blue);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-mark img{width:32px;height:32px;object-fit:contain}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:0.5px;line-height:1.1}
+.logo-text span{color:var(--blue2)}
+.sidebar-nav{padding:10px 8px;flex:1}
+.nav-sec{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;padding:10px 10px 5px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:var(--rsm);
+  font-size:13px;font-weight:500;color:var(--text2);
+  cursor:pointer;transition:all .15s;text-decoration:none;position:relative;
+}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--blue-soft);color:var(--blue2);border:1px solid var(--blue-glow)}
+.nav-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.nav-badge{
+  margin-left:auto;background:var(--warning);color:#000;
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;
+}
+.sidebar-user{
+  padding:12px;border-top:1px solid var(--border);
+}
+.user-pill{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:var(--rsm);background:var(--bg3);border:1px solid var(--border);
+}
+.user-av{
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.user-name{font-size:12px;font-weight:600}
+.user-role{font-size:10px;color:var(--blue2);background:var(--blue-soft);padding:1px 5px;border-radius:3px}
+
+/* ── Main ── */
+.main{
+  margin-left:var(--sidebar);flex:1;
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:100vh;
+}
+.panel{padding:28px 28px 80px;overflow-y:auto;max-height:100vh}
+.panel-left{border-right:1px solid var(--border)}
+.panel-right{background:var(--bg2)}
+
+/* ── Panel headers ── */
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border);
+}
+.panel-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:20px;font-weight:800;letter-spacing:0.3px;
+}
+.panel-title span{color:var(--blue2)}
+
+/* ── Form ── */
+.section-label{
+  font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.section-label::before{
+  content:'';width:3px;height:12px;
+  background:linear-gradient(var(--blue),var(--blue2));
+  border-radius:2px;display:inline-block;
+}
+.form-group{margin-bottom:14px}
+.finput,.fselect,.ftextarea{
+  width:100%;background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--rsm);
+  color:var(--text);font-family:'Be Vietnam Pro',sans-serif;
+  font-size:13px;padding:10px 12px;outline:none;
+  transition:border-color .15s,box-shadow .15s;appearance:none;
+}
+.finput:focus,.fselect:focus,.ftextarea:focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft);
+}
+.finput::placeholder,.ftextarea::placeholder{color:var(--text3)}
+.ftextarea{resize:vertical;min-height:90px;line-height:1.6}
+.fselect{
+  cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a84a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+}
+.fselect option{background:var(--bg3)}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* tags */
+.tags-wrap{
+  display:flex;flex-wrap:wrap;gap:5px;align-items:center;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rsm);padding:7px 10px;min-height:42px;
+  cursor:text;transition:border-color .15s;
+}
+.tags-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.tag{
+  display:flex;align-items:center;gap:3px;
+  background:var(--blue-soft);border:1px solid var(--blue-glow);
+  color:var(--blue2);font-size:11px;font-weight:600;
+  padding:2px 7px;border-radius:5px;
+}
+.tag-x{cursor:pointer;opacity:.6;font-size:13px;line-height:1;padding:0 1px}
+.tag-x:hover{opacity:1}
+.tags-wrap input{
+  border:none;background:transparent;color:var(--text);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:13px;
+  outline:none;flex:1;min-width:100px;padding:1px 3px;
+}
+
+/* toggle */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.toggle-row:last-child{border-bottom:none}
+.tl-name{font-size:13px;font-weight:500}
+.tl-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.toggle{position:relative;width:38px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.ttrack{
+  position:absolute;inset:0;
+  background:var(--bg4);border:1px solid var(--border2);
+  border-radius:10px;cursor:pointer;transition:all .2s;
+}
+.toggle input:checked+.ttrack{background:var(--blue);border-color:var(--blue)}
+.ttrack::after{
+  content:'';position:absolute;left:3px;top:50%;transform:translateY(-50%);
+  width:12px;height:12px;background:var(--text3);border-radius:50%;
+  transition:transform .2s,background .2s;
+}
+.toggle input:checked+.ttrack::after{transform:translate(18px,-50%);background:#fff}
+
+/* style picker */
+.style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.sopt{position:relative;cursor:pointer}
+.sopt input{position:absolute;opacity:0;width:0;height:0}
+.scard{
+  border:1.5px solid var(--border);border-radius:var(--rsm);
+  padding:12px 8px;text-align:center;
+  background:var(--bg3);transition:all .15s;
+}
+.scard:hover{border-color:var(--border2)}
+.sopt input:checked+.scard{border-color:var(--blue);background:var(--blue-soft)}
+.scard-icon{font-size:20px;display:block;margin-bottom:4px}
+.scard-name{font-size:11px;font-weight:700;display:block;color:var(--text)}
+.scard-desc{font-size:10px;color:var(--text3);display:block;margin-top:2px;line-height:1.3}
+
+/* Generate button */
+.gen-btn{
+  width:100%;padding:14px;border:none;border-radius:var(--rsm);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;letter-spacing:1px;
+  color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  position:relative;overflow:hidden;
+  transition:transform .15s,opacity .15s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:20px;
+}
+.gen-btn:hover{transform:translateY(-1px);opacity:.92}
+.gen-btn:active{transform:scale(.98)}
+.gen-btn.loading{pointer-events:none;opacity:.75}
+.spinner{width:18px;height:18px;border:2.5px solid #ffffff40;border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.cost-note{
+  text-align:center;font-size:11px;color:var(--text3);margin-top:8px;
+}
+.cost-note strong{color:var(--warning)}
+
+/* ── Right panel: Preview ── */
+.preview-empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:100%;gap:16px;
+  color:var(--text3);padding:40px;text-align:center;
+}
+.preview-empty-wolf{width:120px;opacity:.35;filter:grayscale(1)}
+.preview-empty h3{font-size:16px;font-weight:600;color:var(--text2)}
+.preview-empty p{font-size:13px;line-height:1.6;max-width:260px}
+
+/* preview tabs */
+.ptabs{
+  display:flex;gap:2px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--rsm);
+  padding:3px;margin-bottom:20px;width:fit-content;
+}
+.ptab{
+  padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;
+  color:var(--text2);cursor:pointer;border:none;
+  background:transparent;font-family:'Be Vietnam Pro',sans-serif;
+  transition:all .15s;
+}
+.ptab:hover{color:var(--text)}
+.ptab.active{background:var(--bg4);color:var(--text)}
+
+/* content preview */
+.content-preview{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  font-size:13px;line-height:1.8;color:var(--text);
+  white-space:pre-wrap;word-break:break-word;
+  max-height:420px;overflow-y:auto;
+  position:relative;
+}
+.content-preview.editable{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px var(--blue-soft);
+  outline:none;
+}
+
+/* image canvas preview */
+.img-tabs{display:flex;gap:8px;margin-bottom:12px}
+.img-tab-btn{
+  padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:var(--bg3);color:var(--text2);
+  cursor:pointer;transition:all .15s;
+}
+.img-tab-btn.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue2)}
+
+.canvas-wrap{
+  border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  min-height:300px;position:relative;
+}
+.canvas-wrap canvas{max-width:100%;height:auto;display:block}
+
+/* action buttons */
+.action-row{
+  display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;
+}
+.abtn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;border-radius:var(--rsm);
+  font-size:12px;font-weight:700;cursor:pointer;
+  border:none;font-family:'Be Vietnam Pro',sans-serif;
+  transition:all .15s;
+}
+.abtn-primary{background:var(--blue);color:#fff}
+.abtn-primary:hover{background:var(--blue2)}
+.abtn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.abtn-ghost:hover{border-color:var(--blue);color:var(--text);background:var(--blue-soft)}
+.abtn-success{background:var(--success);color:#000}
+.abtn-success:hover{opacity:.85}
+
+/* status bar */
+.status-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:var(--rsm);
+  font-size:12px;font-weight:500;margin-bottom:16px;
+}
+.status-bar.info{background:var(--blue-soft);border:1px solid var(--blue-glow);color:var(--ice)}
+.status-bar.success{background:#2dd4a012;border:1px solid #2dd4a025;color:var(--success)}
+.status-bar.error{background:#ff5f5f12;border:1px solid #ff5f5f25;color:var(--danger)}
+
+/* regenerate row */
+.regen-row{
+  display:flex;gap:6px;margin-top:12px;padding-top:12px;
+  border-top:1px solid var(--border);
+}
+
+/* toast */
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--rsm);padding:11px 16px;
+  font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:8px;
+  z-index:200;transform:translateY(70px);
+  transition:transform .25s ease;max-width:320px;
+}
+.toast.show{transform:translateY(0)}
+.toast.ok{border-left:3px solid var(--success)}
+.toast.err{border-left:3px solid var(--danger)}
+
+/* config banner */
+.config-banner{
+  background:#f5a62312;border:1px solid #f5a62330;
+  border-radius:var(--rsm);padding:10px 14px;
+  font-size:12px;color:var(--warning);
+  display:flex;align-items:center;gap:8px;margin-bottom:16px;
+  cursor:pointer;
+}
+.config-banner input{
+  background:var(--bg3);border:1px solid #f5a62340;
+  border-radius:5px;color:var(--text);font-size:12px;
+  padding:4px 8px;outline:none;flex:1;
+  font-family:'Be Vietnam Pro',sans-serif;
+}
+.config-banner input:focus{border-color:var(--warning)}
+
+/* modal */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);z-index:100;
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--radius);width:100%;max-width:480px;
+  animation:mIn .2s ease;
+}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:none}}
+.mhead{
+  padding:18px 20px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.mhead h2{font-size:15px;font-weight:700}
+.mclose{
+  width:26px;height:26px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:var(--text2);transition:all .15s;
+}
+.mclose:hover{color:var(--text)}
+.mbody{padding:18px 20px}
+.mfoot{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .panel-left{border-right:none;border-bottom:1px solid var(--border)}
+  .sidebar{display:none}
+  .main{margin-left:0}
+}
+</style>
+</head>
+<body>
+<script src="assets.js"></script>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark"><img id="sidebarLogo" src="" alt="logo"></div>
+    <div class="logo-text">Recruit<span>Gen</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-sec">Chính</div>
+    <a href="generate.html" class="nav-item active">
+      <span class="nav-icon">✦</span> Tạo bài mới
+    </a>
+    <a href="library.html" class="nav-item">
+      <span class="nav-icon">◫</span> Thư viện mẫu
+      <span class="nav-badge" id="navBadge" style="display:none">0</span>
+    </a>
+    <div class="nav-sec" style="margin-top:10px">Lịch sử</div>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">◷</span> Bài đã tạo
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">↑</span> Drive uploads
+    </a>
+    <div class="nav-sec" style="margin-top:10px">Cài đặt</div>
+    <a href="#" class="nav-item" onclick="openApiModal();return false">
+      <span class="nav-icon">🔑</span> API Key
+    </a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-pill">
+      <div class="user-av">IEC</div>
+      <div>
+        <div class="user-name">IEC Games</div>
+        <div class="user-role">HR Team</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main: 2 columns -->
+<main class="main">
+
+  <!-- LEFT: Form -->
+  <div class="panel panel-left" id="formPanel">
+    <div class="panel-head">
+      <div class="panel-title">Nhập vị trí <span>tuyển dụng</span></div>
+    </div>
+
+    <!-- API key banner -->
+    <div class="config-banner" id="apiBanner">
+      <span>🔑</span>
+      <span>Chưa có API key —</span>
+      <input type="password" id="apiKeyInline" placeholder="Paste OpenAI API key sk-proj-..." oninput="saveKey(this.value)">
+      <span style="cursor:pointer;padding:0 4px" onclick="toggleKeyVis()">👁</span>
+    </div>
+
+    <form id="mainForm" onsubmit="handleGenerate(event)">
+
+      <!-- Vị trí -->
+      <div class="section-label">Thông tin vị trí</div>
+
+      <div class="form-group">
+        <input class="finput" id="jobTitle" placeholder="Tên vị trí tuyển dụng *" required>
+      </div>
+
+      <div class="row3" style="margin-bottom:14px">
+        <select class="fselect" id="jobLevel">
+          <option value="">Level</option>
+          <option value="Intern">Intern</option>
+          <option value="Fresher">Fresher</option>
+          <option value="Junior">Junior</option>
+          <option value="Middle">Middle</option>
+          <option value="Senior">Senior</option>
+          <option value="Lead">Lead</option>
+        </select>
+        <input class="finput" id="headcount" type="number" placeholder="Số lượng" min="1">
+        <select class="fselect" id="workType">
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Remote">Remote</option>
+          <option value="Hybrid">Hybrid</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="tags-wrap" id="skillsWrap" onclick="document.getElementById('skillIn').focus()">
+          <input id="skillIn" placeholder="Kỹ năng / yêu cầu — nhấn Enter để thêm...">
+        </div>
+      </div>
+
+      <!-- Lương -->
+      <div class="section-label" style="margin-top:4px">Mức lương <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);font-size:10px">optional</span></div>
+      <div class="row2" style="margin-bottom:14px">
+        <input class="finput" id="salMin" placeholder="Từ (VD: 20,000,000)">
+        <input class="finput" id="salMax" placeholder="Đến (VD: 35,000,000)">
+      </div>
+
+      <!-- Highlights -->
+      <div class="section-label">Điểm nổi bật công ty *</div>
+      <div class="form-group">
+        <textarea class="ftextarea" id="highlights" placeholder="Lý do ứng viên nên join IEC Games? VD: studio game đang tăng trưởng mạnh, team trẻ năng động, review lương 2 lần/năm..." required></textarea>
+      </div>
+
+      <!-- Optional toggles -->
+      <div class="toggle-row">
+        <div><div class="tl-name">Mô tả công việc chi tiết</div><div class="tl-sub">Thêm job description vào bài</div></div>
+        <label class="toggle"><input type="checkbox" id="tog1" onchange="showHide('sec1',this.checked)"><span class="ttrack"></span></label>
+      </div>
+      <div id="sec1" style="display:none;padding:12px 0 4px">
+        <textarea class="ftextarea" id="jobDesc" placeholder="Mô tả các đầu việc, trách nhiệm chính..."></textarea>
+      </div>
+
+      <div class="toggle-row">
+        <div><div class="tl-name">Quyền lợi chi tiết</div><div class="tl-sub">BHXH, thưởng, team building...</div></div>
+        <label class="toggle"><input type="checkbox" id="tog2" onchange="showHide('sec2',this.checked)"><span class="ttrack"></span></label>
+      </div>
+      <div id="sec2" style="display:none;padding:12px 0 4px">
+        <textarea class="ftextarea" id="benefits" placeholder="VD: BHXH đầy đủ, thưởng KPI quý, 12 ngày phép, MacBook, team lunch..."></textarea>
+      </div>
+
+      <!-- Image style -->
+      <div class="section-label" style="margin-top:16px">Phong cách hình ảnh</div>
+      <div class="style-grid">
+        <label class="sopt"><input type="radio" name="imgStyle" value="professional" checked>
+          <div class="scard"><span class="scard-icon">🏢</span><span class="scard-name">Chuyên nghiệp</span><span class="scard-desc">Corporate, navy</span></div></label>
+        <label class="sopt"><input type="radio" name="imgStyle" value="dynamic">
+          <div class="scard"><span class="scard-icon">⚡</span><span class="scard-name">Năng động</span><span class="scard-desc">Bold gradient</span></div></label>
+        <label class="sopt"><input type="radio" name="imgStyle" value="gaming">
+          <div class="scard"><span class="scard-icon">🎮</span><span class="scard-name">Gaming</span><span class="scard-desc">Dark, neon, tech</span></div></label>
+        <label class="sopt"><input type="radio" name="imgStyle" value="minimal">
+          <div class="scard"><span class="scard-icon">◻</span><span class="scard-name">Minimal</span><span class="scard-desc">Clean, trắng</span></div></label>
+        <label class="sopt"><input type="radio" name="imgStyle" value="warm">
+          <div class="scard"><span class="scard-icon">🌅</span><span class="scard-name">Ấm áp</span><span class="scard-desc">Cam, vàng</span></div></label>
+        <label class="sopt"><input type="radio" name="imgStyle" value="custom">
+          <div class="scard"><span class="scard-icon">✏️</span><span class="scard-name">Tùy chỉnh</span><span class="scard-desc">Tự mô tả</span></div></label>
+      </div>
+      <div id="customStyleSec" style="display:none;margin-top:10px">
+        <textarea class="ftextarea" id="customStyle" placeholder="Mô tả phong cách ảnh bạn muốn..." style="min-height:70px"></textarea>
+      </div>
+
+      <button type="submit" class="gen-btn" id="genBtn">
+        <span>✦</span><span id="genBtnText">TẠO BÀI TUYỂN DỤNG</span>
+      </button>
+      <div class="cost-note">Chi phí ước tính: <strong>~$0.12</strong> / lần tạo</div>
+    </form>
+  </div>
+
+  <!-- RIGHT: Preview -->
+  <div class="panel panel-right" id="previewPanel">
+
+    <!-- Empty state -->
+    <div class="preview-empty" id="emptyState">
+      <img class="preview-empty-wolf" id="emptyWolf" src="" alt="wolf">
+      <h3>Chưa có nội dung</h3>
+      <p>Điền thông tin vị trí bên trái và bấm <strong style="color:var(--blue2)">Tạo bài tuyển dụng</strong> để xem kết quả ở đây.</p>
+    </div>
+
+    <!-- Result (hidden until gen) -->
+    <div id="resultArea" style="display:none">
+      <div class="panel-head">
+        <div class="panel-title">Kết quả <span>đã tạo</span></div>
+        <span id="resultBadge" class="nav-badge" style="background:var(--success);color:#000;font-size:11px;padding:3px 8px;border-radius:6px"></span>
+      </div>
+
+      <!-- Status -->
+      <div class="status-bar info" id="statusBar">
+        <span>⏳</span><span id="statusMsg">Đang tạo...</span>
+      </div>
+
+      <!-- Preview tabs -->
+      <div class="ptabs">
+        <button class="ptab active" onclick="switchPtab('content',this)">📝 Content</button>
+        <button class="ptab" onclick="switchPtab('img1',this)">🖼 Ảnh 1:1</button>
+        <button class="ptab" onclick="switchPtab('img2',this)">📱 Ảnh 9:16</button>
+      </div>
+
+      <!-- Content tab -->
+      <div id="tab-content">
+        <div class="content-preview" id="contentBox" contenteditable="false"></div>
+        <div class="action-row">
+          <button class="abtn abtn-primary" onclick="copyContent()">📋 Copy nội dung</button>
+          <button class="abtn abtn-ghost" onclick="toggleEdit()">✏️ Chỉnh sửa</button>
+          <button class="abtn abtn-ghost" onclick="regenContent()">🔄 Tạo lại</button>
+        </div>
+      </div>
+
+      <!-- Image 1:1 tab -->
+      <div id="tab-img1" style="display:none">
+        <div class="img-tabs">
+          <span style="font-size:12px;color:var(--text2);padding:5px 0">1080 × 1080 px (Facebook/Square)</span>
+        </div>
+        <div class="canvas-wrap"><canvas id="canvas1" width="1080" height="1080"></canvas></div>
+        <div class="action-row">
+          <button class="abtn abtn-primary" onclick="downloadCanvas('canvas1','tuyen-dung-1x1.png')">⬇ Tải ảnh 1:1</button>
+          <button class="abtn abtn-ghost" onclick="regenImage()">🔄 Gen lại ảnh</button>
+        </div>
+      </div>
+
+      <!-- Image 9:16 tab -->
+      <div id="tab-img2" style="display:none">
+        <div class="img-tabs">
+          <span style="font-size:12px;color:var(--text2);padding:5px 0">1080 × 1920 px (Story/Reels)</span>
+        </div>
+        <div class="canvas-wrap"><canvas id="canvas2" width="1080" height="1920"></canvas></div>
+        <div class="action-row">
+          <button class="abtn abtn-primary" onclick="downloadCanvas('canvas2','tuyen-dung-9x16.png')">⬇ Tải ảnh 9:16</button>
+          <button class="abtn abtn-ghost" onclick="regenImage()">🔄 Gen lại ảnh</button>
+        </div>
+      </div>
+
+      <!-- Save row -->
+      <div class="regen-row">
+        <button class="abtn abtn-success" onclick="saveToDrive()" style="flex:1">
+          ☁ Lưu lên Google Drive
+        </button>
+        <button class="abtn abtn-ghost" onclick="saveToHistory()">
+          📂 Lưu lịch sử
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- API Key Modal -->
+<div class="modal-bg" id="apiModal">
+  <div class="modal">
+    <div class="mhead">
+      <h2>🔑 Cài đặt OpenAI API Key</h2>
+      <button class="mclose" onclick="closeModal('apiModal')">✕</button>
+    </div>
+    <div class="mbody">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+        API key được lưu trong trình duyệt của bạn (localStorage), không gửi lên server nào khác ngoài OpenAI.
+      </p>
+      <div class="form-group">
+        <input class="finput" type="password" id="apiKeyModal" placeholder="sk-proj-...">
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Lấy key tại: platform.openai.com/api-keys</div>
+    </div>
+    <div class="mfoot">
+      <button class="abtn abtn-ghost" onclick="closeModal('apiModal')">Hủy</button>
+      <button class="abtn abtn-primary" onclick="saveKeyFromModal()">Lưu key</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Brand colors ──────────────────────────────────────────────
+const BRAND = {
+  blue:     '#1a6fd4',
+  blue2:    '#2488f0',
+  ice:      '#a8d8ff',
+  dark:     '#07090f',
+  dark2:    '#0e1118',
+  white:    '#f0f4ff',
+};
+
+// ─── Init assets ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.ASSETS) {
+    document.getElementById('sidebarLogo').src = ASSETS.logo;
+    document.getElementById('emptyWolf').src    = ASSETS.wolfWork;
+  }
+  loadKey();
+  updateNavBadge();
+});
+
+// ─── Skills tags ──────────────────────────────────────────────
+const skills = [];
+document.getElementById('skillIn').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const v = e.target.value.trim().replace(/,$/, '');
+    if (v && !skills.includes(v)) {
+      skills.push(v);
+      renderTags();
+    }
+    e.target.value = '';
+  }
+  if (e.key === 'Backspace' && !e.target.value && skills.length) {
+    skills.pop(); renderTags();
+  }
+});
+function renderTags() {
+  const wrap = document.getElementById('skillsWrap');
+  wrap.querySelectorAll('.tag').forEach(t => t.remove());
+  const inp = document.getElementById('skillIn');
+  skills.forEach((s, i) => {
+    const t = document.createElement('div');
+    t.className = 'tag';
+    t.innerHTML = `${s}<span class="tag-x" onclick="removeSkill(${i})">×</span>`;
+    wrap.insertBefore(t, inp);
+  });
+}
+function removeSkill(i) { skills.splice(i, 1); renderTags(); }
+
+// ─── Toggles ──────────────────────────────────────────────────
+function showHide(id, show) {
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="imgStyle"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('customStyleSec').style.display =
+      r.value === 'custom' && r.checked ? 'block' : 'none';
+  });
+});
+
+// ─── API key management ────────────────────────────────────────
+const KEY_STORE = 'recruitgen_apikey';
+function saveKey(v) {
+  if (v && v.startsWith('sk-')) { localStorage.setItem(KEY_STORE, v); hideBanner(); }
+}
+function loadKey() {
+  const k = localStorage.getItem(KEY_STORE);
+  if (k) { hideBanner(); document.getElementById('apiKeyModal').value = k; }
+}
+function hideBanner() { document.getElementById('apiBanner').style.display = 'none'; }
+function toggleKeyVis() {
+  const inp = document.getElementById('apiKeyInline');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+function openApiModal() {
+  const k = localStorage.getItem(KEY_STORE) || '';
+  document.getElementById('apiKeyModal').value = k;
+  openModal('apiModal');
+}
+function saveKeyFromModal() {
+  const v = document.getElementById('apiKeyModal').value.trim();
+  if (!v.startsWith('sk-')) { toast('Key không hợp lệ — phải bắt đầu bằng sk-', 'err'); return; }
+  localStorage.setItem(KEY_STORE, v);
+  hideBanner();
+  closeModal('apiModal');
+  toast('Đã lưu API key ✓', 'ok');
+}
+function getKey() { return localStorage.getItem(KEY_STORE) || ''; }
+
+// ─── Few-shot samples from library ────────────────────────────
+function getApprovedSamples() {
+  try {
+    const data = JSON.parse(localStorage.getItem('recruitgen_library') || '[]');
+    return data.filter(d => d.type === 'content' && d.status === 'approved')
+               .map(d => d.content).slice(0, 5);
+  } catch { return []; }
+}
+
+// ─── Build GPT prompt ─────────────────────────────────────────
+function buildPrompt(fd) {
+  const samples = getApprovedSamples();
+  const fewShot = samples.length
+    ? `Dưới đây là ${samples.length} bài đăng tuyển dụng mẫu của IEC Games. Học theo tone, cấu trúc và phong cách viết:\n\n${samples.map((s,i)=>`--- Mẫu ${i+1} ---\n${s}`).join('\n\n')}\n\n---\n\n`
+    : '';
+
+  const salaryPart = fd.salMin || fd.salMax
+    ? `Mức lương: ${fd.salMin || '?'} – ${fd.salMax || '?'} VNĐ`
+    : 'Mức lương: Thỏa thuận';
+
+  return `${fewShot}Bạn là HR copywriter chuyên nghiệp của IEC Games (công ty game Việt Nam).
+Viết 1 bài đăng tuyển dụng Facebook hoàn chỉnh với các thông tin sau:
+
+Vị trí: ${fd.title}${fd.level ? ` (${fd.level})` : ''}
+${fd.headcount ? `Số lượng: ${fd.headcount} người` : ''}
+Hình thức: ${fd.workType}
+Kỹ năng/Yêu cầu: ${fd.skills.join(', ') || 'Xem mô tả'}
+${salaryPart}
+Điểm nổi bật công ty: ${fd.highlights}
+${fd.jobDesc ? `Mô tả công việc: ${fd.jobDesc}` : ''}
+${fd.benefits ? `Quyền lợi: ${fd.benefits}` : ''}
+
+YÊU CẦU BẮT BUỘC trong bài:
+1. Tiêu đề hấp dẫn có emoji
+2. Tên vị trí rõ ràng
+3. Yêu cầu năm kinh nghiệm hoặc level
+4. Ít nhất 2-3 điểm quyền lợi/lý do nên ứng tuyển
+5. CTA rõ ràng (cách apply)
+6. 3-5 hashtag phù hợp
+
+Viết bằng tiếng Việt, tone thân thiện nhưng chuyên nghiệp, phù hợp với ngành game/tech.
+Chỉ trả lời bằng nội dung bài đăng, không giải thích thêm.`;
+}
+
+// ─── DALL-E prompt builder ────────────────────────────────────
+const STYLE_PROMPTS = {
+  professional: `Corporate blue recruitment poster. Deep navy blue to midnight blue gradient background. Clean geometric grid pattern overlay. Professional and trustworthy aesthetic. Generous whitespace for text overlay.`,
+  dynamic:      `Dynamic bold recruitment poster. Electric blue (#1a6fd4) to royal blue gradient. Bold diagonal geometric shapes. Energetic, modern, high-contrast. Strong visual impact.`,
+  gaming:       `Gaming studio recruitment poster. Dark background (#07090f) with electric blue (#1a6fd4) neon accent glows. Subtle hexagonal grid pattern. Cyberpunk-meets-professional aesthetic. Dark tech atmosphere.`,
+  minimal:      `Minimalist clean recruitment poster. White background with subtle light blue (#e8f4ff) geometric accents. IEC Games blue (#1a6fd4) as accent color only. Typography-forward, lots of breathing room.`,
+  warm:         `Warm energetic recruitment poster. Soft coral to amber gradient background. Rounded friendly shapes. Blue (#1a6fd4) accent elements. Approachable and inviting atmosphere.`,
+  custom:       '',
+};
+
+function buildImagePrompt(style, customText, jobTitle) {
+  const base = style === 'custom' ? customText : STYLE_PROMPTS[style] || STYLE_PROMPTS.professional;
+  return `${base} The poster is for a job recruitment at IEC Games (a Vietnamese game studio). Job title area: "${jobTitle}". Do NOT include any text or logos in the image — leave clean space for text overlay. The composition should have: top area for mascot/logo placement, center-left for main text, bottom for details. High quality, professional, 4K.`;
+}
+
+// ─── Main generate handler ────────────────────────────────────
+let lastFormData = null;
+let lastContent  = '';
+let lastBgUrl1   = '';
+let lastBgUrl2   = '';
+
+async function handleGenerate(e) {
+  e.preventDefault();
+  const key = getKey();
+  if (!key) {
+    toast('Cần nhập OpenAI API key trước!', 'err');
+    document.getElementById('apiBanner').style.display = 'flex';
+    return;
+  }
+  if (skills.length === 0) {
+    toast('Thêm ít nhất 1 kỹ năng / yêu cầu', 'err'); return;
+  }
+
+  const fd = {
+    title:      document.getElementById('jobTitle').value.trim(),
+    level:      document.getElementById('jobLevel').value,
+    headcount:  document.getElementById('headcount').value,
+    workType:   document.getElementById('workType').value,
+    skills:     [...skills],
+    salMin:     document.getElementById('salMin').value.trim(),
+    salMax:     document.getElementById('salMax').value.trim(),
+    highlights: document.getElementById('highlights').value.trim(),
+    jobDesc:    document.getElementById('tog1').checked ? document.getElementById('jobDesc').value.trim() : '',
+    benefits:   document.getElementById('tog2').checked ? document.getElementById('benefits').value.trim() : '',
+    imgStyle:   document.querySelector('input[name="imgStyle"]:checked').value,
+    customStyle:document.getElementById('customStyle').value.trim(),
+  };
+  lastFormData = fd;
+
+  // Show result panel
+  document.getElementById('emptyState').style.display  = 'none';
+  document.getElementById('resultArea').style.display  = 'block';
+  setStatus('info', '⏳ Đang tạo content...');
+  setBtn(true, 'Đang tạo...');
+
+  try {
+    // Step 1: Gen content
+    const content = await genContent(fd, key);
+    lastContent = content;
+    document.getElementById('contentBox').textContent = content;
+    setStatus('info', '🎨 Đang tạo hình ảnh background...');
+
+    // Step 2: Gen images
+    const imgPrompt = buildImagePrompt(fd.imgStyle, fd.customStyle, fd.title);
+    const [bg1, bg2] = await Promise.all([
+      genImage(imgPrompt, '1024x1024', key),
+      genImage(imgPrompt, '1024x1792', key),
+    ]);
+    lastBgUrl1 = bg1;
+    lastBgUrl2 = bg2;
+
+    // Step 3: Composite
+    setStatus('info', '🖼 Đang ghép logo và mascot...');
+    await drawCanvas('canvas1', bg1, 1080, 1080, content, fd.title);
+    await drawCanvas('canvas2', bg2, 1080, 1920, content, fd.title);
+
+    setStatus('success', '✓ Hoàn tất! Xem content và ảnh ở các tab bên dưới.');
+    document.getElementById('resultBadge').textContent = fd.title;
+    toast('Tạo bài thành công! ✓', 'ok');
+  } catch (err) {
+    setStatus('error', '✕ Lỗi: ' + err.message);
+    toast('Lỗi: ' + err.message, 'err');
+    console.error(err);
+  } finally {
+    setBtn(false, 'TẠO BÀI TUYỂN DỤNG');
+  }
+}
+
+// ─── GPT-4o content gen ───────────────────────────────────────
+async function genContent(fd, key) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    // Using OpenAI endpoint
+  });
+  // Actually call OpenAI
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${key}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: 1200,
+      messages: [
+        { role: 'system', content: 'Bạn là HR copywriter chuyên nghiệp tại IEC Games.' },
+        { role: 'user',   content: buildPrompt(fd) },
+      ],
+      temperature: 0.8,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.choices[0].message.content.trim();
+}
+
+// ─── DALL-E 3 image gen ───────────────────────────────────────
+async function genImage(prompt, size, key) {
+  const res = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${key}`,
+    },
+    body: JSON.stringify({
+      model:   'dall-e-3',
+      prompt:  prompt,
+      n:       1,
+      size:    size,
+      quality: 'standard',
+      response_format: 'url',
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error('DALL-E: ' + (err.error?.message || `HTTP ${res.status}`));
+  }
+  const data = await res.json();
+  return data.data[0].url;
+}
+
+// ─── Canvas compositing ───────────────────────────────────────
+async function drawCanvas(canvasId, bgUrl, W, H, content, jobTitle) {
+  const canvas = document.getElementById(canvasId);
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // 1. Draw background image
+  const bg = await loadImg(bgUrl);
+  ctx.drawImage(bg, 0, 0, W, H);
+
+  // 2. Dark overlay for text readability
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0,   'rgba(7,9,15,0.25)');
+  grad.addColorStop(0.4, 'rgba(7,9,15,0.55)');
+  grad.addColorStop(1,   'rgba(7,9,15,0.85)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // 3. Logo (top-right)
+  if (window.ASSETS) {
+    const logo = await loadImg(ASSETS.logo);
+    const lH = W * 0.09;
+    const lW = logo.width * (lH / logo.height);
+    ctx.drawImage(logo, W - lW - W*0.05, H*0.04, lW, lH);
+  }
+
+  // 4. Mascot (bottom-left, pick based on canvas)
+  if (window.ASSETS) {
+    const mascotSrc = (H > W) ? ASSETS.wolfMega : ASSETS.wolfPoint;
+    const mascot = await loadImg(mascotSrc);
+    const mH = H * (H > W ? 0.32 : 0.42);
+    const mW = mascot.width * (mH / mascot.height);
+    ctx.drawImage(mascot, W * 0.02, H - mH - H * 0.02, mW, mH);
+  }
+
+  // 5. Accent line
+  ctx.fillStyle = BRAND.blue2;
+  ctx.fillRect(W * 0.07, H * 0.18, 5, H * 0.08);
+
+  // 6. "TUYỂN DỤNG" label
+  ctx.fillStyle = BRAND.blue2;
+  ctx.font      = `800 ${W*0.038}px 'Be Vietnam Pro', sans-serif`;
+  ctx.fillText('TUYỂN DỤNG', W * 0.09, H * 0.21);
+
+  // 7. Job title (big)
+  ctx.fillStyle = '#ffffff';
+  ctx.font      = `800 ${W*0.072}px 'Be Vietnam Pro', sans-serif`;
+  wrapText(ctx, jobTitle.toUpperCase(), W * 0.09, H * 0.28, W * 0.84, W * 0.085);
+
+  // 8. Short excerpt (first 3 lines of content)
+  const excerpt = content.split('\n').filter(l => l.trim()).slice(0,3).join(' • ');
+  ctx.fillStyle = BRAND.ice;
+  ctx.font      = `400 ${W*0.028}px 'Be Vietnam Pro', sans-serif`;
+  wrapText(ctx, excerpt, W * 0.09, H * (H > W ? 0.48 : 0.46), W * 0.5, W * 0.034);
+
+  // 9. Bottom bar
+  ctx.fillStyle = BRAND.blue;
+  ctx.fillRect(0, H * 0.92, W, H * 0.08);
+  ctx.fillStyle = '#ffffff';
+  ctx.font      = `700 ${W*0.032}px 'Be Vietnam Pro', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('IEC GAMES • winterwolf.vn', W / 2, H * 0.97);
+  ctx.textAlign = 'left';
+}
+
+function wrapText(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' ');
+  let line = '';
+  let lines = 0;
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line, x, y + lines * lineH);
+      line = word; lines++;
+      if (lines >= 3) break;
+    } else { line = test; }
+  }
+  if (line && lines < 3) ctx.fillText(line, x, y + lines * lineH);
+}
+
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload  = () => res(img);
+    img.onerror = () => rej(new Error('Failed to load image'));
+    img.src = src;
+  });
+}
+
+// ─── UI helpers ───────────────────────────────────────────────
+function setStatus(type, msg) {
+  const bar = document.getElementById('statusBar');
+  bar.className = `status-bar ${type}`;
+  document.getElementById('statusMsg').textContent = msg;
+}
+function setBtn(loading, text) {
+  const btn  = document.getElementById('genBtn');
+  const span = document.getElementById('genBtnText');
+  btn.classList.toggle('loading', loading);
+  if (loading) {
+    btn.innerHTML = '<div class="spinner"></div><span>' + text + '</span>';
+  } else {
+    btn.innerHTML = '<span>✦</span><span>' + text + '</span>';
+  }
+}
+function switchPtab(tab, el) {
+  ['content','img1','img2'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ─── Actions ──────────────────────────────────────────────────
+function copyContent() {
+  const text = document.getElementById('contentBox').textContent;
+  navigator.clipboard.writeText(text).then(() => toast('Đã copy content! ✓', 'ok'));
+}
+
+let editing = false;
+function toggleEdit() {
+  editing = !editing;
+  const box = document.getElementById('contentBox');
+  box.contentEditable = editing;
+  box.classList.toggle('editable', editing);
+  toast(editing ? 'Chế độ chỉnh sửa: BẬT' : 'Đã lưu chỉnh sửa ✓', 'ok');
+  if (!editing) lastContent = box.textContent;
+}
+
+async function regenContent() {
+  if (!lastFormData) return;
+  setStatus('info', '🔄 Đang tạo lại content...');
+  try {
+    const content = await genContent(lastFormData, getKey());
+    lastContent = content;
+    document.getElementById('contentBox').textContent = content;
+    setStatus('success', '✓ Đã tạo lại content!');
+    toast('Đã tạo lại content ✓', 'ok');
+  } catch (e) { setStatus('error', '✕ ' + e.message); }
+}
+
+async function regenImage() {
+  if (!lastFormData) return;
+  setStatus('info', '🎨 Đang gen lại ảnh...');
+  try {
+    const p = buildImagePrompt(lastFormData.imgStyle, lastFormData.customStyle, lastFormData.title);
+    const [bg1, bg2] = await Promise.all([
+      genImage(p, '1024x1024', getKey()),
+      genImage(p, '1024x1792', getKey()),
+    ]);
+    lastBgUrl1 = bg1; lastBgUrl2 = bg2;
+    await drawCanvas('canvas1', bg1, 1080, 1080, lastContent, lastFormData.title);
+    await drawCanvas('canvas2', bg2, 1080, 1920, lastContent, lastFormData.title);
+    setStatus('success', '✓ Đã gen lại ảnh!');
+    toast('Đã gen lại ảnh ✓', 'ok');
+  } catch (e) { setStatus('error', '✕ ' + e.message); }
+}
+
+function downloadCanvas(id, filename) {
+  const canvas = document.getElementById(id);
+  const a = document.createElement('a');
+  a.download = filename;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  toast('Đang tải ảnh về máy... ✓', 'ok');
+}
+
+function saveToDrive() {
+  // Placeholder — Google Drive API sẽ được tích hợp ở bước sau
+  toast('Tính năng Drive sẽ có ở bước tiếp theo', 'ok');
+}
+
+function saveToHistory() {
+  const history = JSON.parse(localStorage.getItem('recruitgen_history') || '[]');
+  history.unshift({
+    id:        Date.now(),
+    title:     lastFormData?.title || 'Untitled',
+    content:   lastContent,
+    createdAt: new Date().toISOString().split('T')[0],
+  });
+  localStorage.setItem('recruitgen_history', JSON.stringify(history.slice(0, 50)));
+  toast('Đã lưu vào lịch sử ✓', 'ok');
+}
+
+// ─── Nav badge ────────────────────────────────────────────────
+function updateNavBadge() {
+  try {
+    const data = JSON.parse(localStorage.getItem('recruitgen_library') || '[]');
+    const n = data.filter(d => d.status === 'pending').length;
+    const badge = document.getElementById('navBadge');
+    badge.textContent = n;
+    badge.style.display = n > 0 ? '' : 'none';
+  } catch {}
+}
+
+// ─── Modal ────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); })
+);
+
+// ─── Toast ────────────────────────────────────────────────────
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

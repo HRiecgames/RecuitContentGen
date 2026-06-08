@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitGen — Tạo bài tuyển dụng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e2a;
+    --border: #ffffff12;
+    --border-hover: #ffffff25;
+    --accent: #4f7cff;
+    --accent2: #7c4fff;
+    --accent-soft: #4f7cff18;
+    --text: #e8eaf2;
+    --text2: #8b90a8;
+    --text3: #555a72;
+    --success: #2dd4a0;
+    --warning: #f5a623;
+    --danger: #ff5f5f;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 500px;
+    background: radial-gradient(ellipse, #4f7cff14 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .header-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid #4f7cff30;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Page title */
+  .page-title {
+    margin-bottom: 32px;
+  }
+
+  .page-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .page-title h1 .highlight {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-title p {
+    color: var(--text2);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Steps indicator */
+  .steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text3);
+    transition: color 0.2s;
+  }
+
+  .step.active { color: var(--text); }
+  .step.done { color: var(--success); }
+
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .step.active .step-num {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .step.done .step-num {
+    border-color: var(--success);
+    background: #2dd4a015;
+    color: var(--success);
+  }
+
+  .step-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin: 0 12px;
+    min-width: 20px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border-hover); }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: linear-gradient(var(--accent), var(--accent2));
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* Form elements */
+  .form-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .label-optional {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text3);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .label-required {
+    color: var(--accent);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    appearance: none;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px #4f7cff15;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--text3); }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.6;
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b90a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  select option { background: var(--bg3); }
+
+  /* Tags input */
+  .tags-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    cursor: text;
+    min-height: 46px;
+    align-items: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .tags-input:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px #4f7cff15;
+  }
+
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent-soft);
+    border: 1px solid #4f7cff30;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .tag-remove {
+    cursor: pointer;
+    color: var(--accent);
+    opacity: 0.6;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: opacity 0.15s;
+  }
+
+  .tag-remove:hover { opacity: 1; }
+
+  .tags-input input {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 14px;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+    padding: 2px 4px;
+  }
+
+  .tags-hint {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  /* Salary range */
+  .salary-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .salary-sep {
+    color: var(--text3);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Toggle switch */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .toggle-row:first-child { padding-top: 0; }
+
+  .toggle-label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .toggle-label span:first-child {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .toggle-label span:last-child {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .toggle {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .toggle input:checked + .toggle-track {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px;
+    background: var(--text3);
+    border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .toggle input:checked + .toggle-track::after {
+    transform: translate(18px, -50%);
+    background: #fff;
+  }
+
+  /* Image style picker */
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .style-option {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .style-option input {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+  }
+
+  .style-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 12px;
+    text-align: center;
+    transition: all 0.2s;
+    background: var(--bg3);
+  }
+
+  .style-card:hover {
+    border-color: var(--border-hover);
+    background: #1e2330;
+  }
+
+  .style-option input:checked + .style-card {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .style-card-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .style-card-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .style-card-desc {
+    font-size: 11px;
+    color: var(--text3);
+    display: block;
+    line-height: 1.4;
+  }
+
+  /* CTA section */
+  .cta-section {
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    border-radius: var(--radius-sm);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    flex: 1;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #6b92ff, #9b6fff);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-secondary {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .btn-icon { font-size: 16px; }
+
+  /* Cost estimate */
+  .cost-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text3);
+    margin-left: auto;
+  }
+
+  .cost-pill strong {
+    color: var(--warning);
+    font-size: 13px;
+  }
+
+  /* Info box */
+  .info-box {
+    display: flex;
+    gap: 10px;
+    background: #4f7cff0a;
+    border: 1px solid #4f7cff20;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  .info-box-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  /* Character counter */
+  .field-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .char-count.warn { color: var(--warning); }
+  .char-count.over { color: var(--danger); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .form-row.cols-2,
+    .form-row.cols-3 { grid-template-columns: 1fr; }
+    .style-grid { grid-template-columns: 1fr 1fr; }
+    .salary-row { grid-template-columns: 1fr 1fr; }
+    .salary-sep { display: none; }
+    .salary-currency { grid-column: span 2; }
+    .steps { display: none; }
+  }
+
+  /* Loading state */
+  .btn-primary.loading {
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid #ffffff40;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Fade in */
+  .card {
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .card:nth-child(2) { animation-delay: 0.05s; }
+  .card:nth-child(3) { animation-delay: 0.10s; }
+  .card:nth-child(4) { animation-delay: 0.15s; }
+  .card:nth-child(5) { animation-delay: 0.20s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">✦</div>
+      <div class="logo-text">Recruit<span>Gen</span></div>
+    </div>
+    <div class="header-badge">v0.1 — Internal</div>
+  </header>
+
+  <!-- Page title -->
+  <div class="page-title">
+    <h1>Tạo bài <span class="highlight">tuyển dụng</span></h1>
+    <p>Nhập thông tin vị trí, AI sẽ sinh content và hình ảnh hoàn chỉnh.</p>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active">
+      <div class="step-num">1</div>
+      <span>Nhập vị trí</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <span>Gen content & ảnh</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <span>Preview & lưu</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <span>Đăng Facebook</span>
+    </div>
+  </div>
+
+  <form id="recruitForm" onsubmit="handleSubmit(event)">
+
+    <!-- Card 1: Thông tin cơ bản -->
+    <div class="card">
+      <div class="card-title">Thông tin vị trí</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tên vị trí tuyển dụng <span class="label-required">*</span></label>
+          <input type="text" id="jobTitle" placeholder="VD: Senior Frontend Developer" required>
+        </div>
+      </div>
+
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>
+            Cấp độ / Level
+            <span class="label-optional">optional</span>
+          </label>
+          <select id="jobLevel">
+            <option value="">— Chọn level —</option>
+            <option value="intern">Intern</option>
+            <option value="fresher">Fresher (0–1 năm)</option>
+            <option value="junior">Junior (1–2 năm)</option>
+            <option value="middle">Middle (2–4 năm)</option>
+            <option value="senior">Senior (4+ năm)</option>
+            <option value="lead">Lead / Manager</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            Số lượng tuyển
+            <span class="label-optional">optional</span>
+          </label>
+          <input type="number" id="headcount" placeholder="VD: 3" min="1">
+        </div>
+        <div class="form-group">
+          <label>Hình thức làm việc</label>
+          <select id="workType">
+            <option value="full-time">Full-time</option>
+            <option value="part-time">Part-time</option>
+            <option value="remote">Remote</option>
+            <option value="hybrid">Hybrid</option>
+            <option value="contract">Contract</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kỹ năng / Yêu cầu chính <span class="label-required">*</span></label>
+          <div class="tags-input" id="skillsContainer" onclick="document.getElementById('skillInput').focus()">
+            <input type="text" id="skillInput" placeholder="Nhập kỹ năng rồi nhấn Enter...">
+          </div>
+          <div class="tags-hint">Nhấn <kbd style="background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-size:10px">Enter</kbd> hoặc dấu phẩy để thêm tag</div>
+          <input type="hidden" id="skillsHidden">
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Mức lương -->
+    <div class="card">
+      <div class="card-title">Mức lương <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);font-size:11px;margin-left:4px">— optional</span></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Khoảng lương</label>
+          <div class="salary-row">
+            <input type="text" id="salaryMin" placeholder="Tối thiểu" style="text-align:right">
+            <span class="salary-sep">—</span>
+            <input type="text" id="salaryMax" placeholder="Tối đa">
+            <select id="salaryCurrency" class="salary-currency" style="width:auto;min-width:80px">
+              <option value="VND">VNĐ</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-row" style="padding-top:16px;border-top:1px solid var(--border);margin-top:4px">
+        <div class="toggle-label">
+          <span>Hiển thị "Lương thương lượng"</span>
+          <span>Khi không muốn công khai con số cụ thể</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="salaryNegotiable">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Card 3: Mô tả & Quyền lợi -->
+    <div class="card">
+      <div class="card-title">Mô tả & Quyền lợi</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>
+            Điểm nổi bật của công ty / Lý do nên ứng tuyển
+            <span class="label-required">*</span>
+          </label>
+          <textarea id="companyHighlights" placeholder="VD: Startup công nghệ đang tăng trưởng 300% YoY, team trẻ năng động, review lương 2 lần/năm, remote-friendly..." maxlength="500"></textarea>
+          <div class="field-meta">
+            <span></span>
+            <span class="char-count" id="highlightsCount">0 / 500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span>Thêm mô tả công việc chi tiết</span>
+          <span>AI sẽ sinh thêm phần Job Description</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleJobDesc" onchange="toggleSection('jobDescSection', this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div id="jobDescSection" style="display:none;margin-top:16px">
+        <div class="form-group">
+          <label>Mô tả công việc</label>
+          <textarea id="jobDescription" placeholder="Liệt kê các đầu việc chính, trách nhiệm, dự án sẽ tham gia..." style="min-height:120px" maxlength="800"></textarea>
+          <div class="field-meta">
+            <span></span>
+            <span class="char-count" id="jobDescCount">0 / 800</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-row" style="margin-top:4px">
+        <div class="toggle-label">
+          <span>Thêm quyền lợi chi tiết</span>
+          <span>Bảo hiểm, thưởng, team building...</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleBenefits" onchange="toggleSection('benefitsSection', this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div id="benefitsSection" style="display:none;margin-top:16px">
+        <div class="form-group">
+          <label>Quyền lợi chi tiết</label>
+          <textarea id="benefits" placeholder="VD: Thưởng KPI hàng quý, BHXH đầy đủ, 13 ngày phép năm, laptop MacBook, team lunch thứ 6..." style="min-height:120px" maxlength="600"></textarea>
+          <div class="field-meta">
+            <span></span>
+            <span class="char-count" id="benefitsCount">0 / 600</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Phong cách hình ảnh -->
+    <div class="card">
+      <div class="card-title">Phong cách hình ảnh</div>
+
+      <div class="style-grid">
+        <label class="style-option">
+          <input type="radio" name="imageStyle" value="professional" checked>
+          <div class="style-card">
+            <span class="style-card-icon">🏢</span>
+            <span class="style-card-name">Chuyên nghiệp</span>
+            <span class="style-card-desc">Tông xanh navy, trắng, corporate</span>
+          </div>
+        </label>
+        <label class="style-option">
+          <input type="radio" name="imageStyle" value="dynamic">
+          <div class="style-card">
+            <span class="style-card-icon">⚡</span>
+            <span class="style-card-name">Năng động</span>
+            <span class="style-card-desc">Gradient bold, màu sắc tươi</span>
+          </div>
+        </label>
+        <label class="style-option">
+          <input type="radio" name="imageStyle" value="minimal">
+          <div class="style-card">
+            <span class="style-card-icon">◻</span>
+            <span class="style-card-name">Minimalist</span>
+            <span class="style-card-desc">Trắng, đen, typography làm chủ</span>
+          </div>
+        </label>
+        <label class="style-option">
+          <input type="radio" name="imageStyle" value="warm">
+          <div class="style-card">
+            <span class="style-card-icon">🌅</span>
+            <span class="style-card-name">Ấm áp</span>
+            <span class="style-card-desc">Tông cam, vàng, thân thiện</span>
+          </div>
+        </label>
+        <label class="style-option">
+          <input type="radio" name="imageStyle" value="tech">
+          <div class="style-card">
+            <span class="style-card-icon">💻</span>
+            <span class="style-card-name">Tech / Dark</span>
+            <span class="style-card-desc">Nền tối, accent neon, hiện đại</span>
+          </div>
+        </label>
+        <label class="style-option">
+          <input type="radio" name="imageStyle" value="custom">
+          <div class="style-card">
+            <span class="style-card-icon">✏️</span>
+            <span class="style-card-name">Tùy chỉnh</span>
+            <span class="style-card-desc">Mô tả phong cách riêng</span>
+          </div>
+        </label>
+      </div>
+
+      <div id="customStyleSection" style="display:none;margin-top:16px">
+        <div class="form-group">
+          <label>Mô tả phong cách tùy chỉnh</label>
+          <textarea id="customStyle" placeholder="VD: Nền trắng với accent màu cam #FF6B35, có hình minh họa người làm việc, phong cách flat design..." style="min-height:80px"></textarea>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:16px">
+        <span class="info-box-icon">ℹ</span>
+        <span>AI sẽ gen background theo phong cách chọn, sau đó tự động ghép logo và text lên. Xuất ra 2 file: <strong style="color:var(--text)">1080×1080px</strong> và <strong style="color:var(--text)">1080×1920px</strong>.</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <button type="button" class="btn btn-secondary" onclick="clearForm()">
+        <span class="btn-icon">↺</span>
+        <span>Xóa form</span>
+      </button>
+      <button type="submit" class="btn btn-primary" id="generateBtn">
+        <span class="btn-icon">✦</span>
+        <span>Tạo bài tuyển dụng</span>
+      </button>
+      <div class="cost-pill">
+        <span>Chi phí ước tính</span>
+        <strong id="costEstimate">~$0.12</strong>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  // Tags input
+  const skills = [];
+
+  document.getElementById('skillInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addSkill(this.value.trim());
+      this.value = '';
+    }
+    if (e.key === 'Backspace' && this.value === '' && skills.length > 0) {
+      removeSkill(skills.length - 1);
+    }
+  });
+
+  function addSkill(val) {
+    if (!val || skills.includes(val)) return;
+    skills.push(val);
+    renderTags();
+  }
+
+  function removeSkill(idx) {
+    skills.splice(idx, 1);
+    renderTags();
+  }
+
+  function renderTags() {
+    const container = document.getElementById('skillsContainer');
+    const input = document.getElementById('skillInput');
+    container.querySelectorAll('.tag').forEach(t => t.remove());
+    skills.forEach((s, i) => {
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.innerHTML = `${s}<span class="tag-remove" onclick="removeSkill(${i})">×</span>`;
+      container.insertBefore(tag, input);
+    });
+    document.getElementById('skillsHidden').value = skills.join(',');
+    updateCost();
+  }
+
+  // Toggle sections
+  function toggleSection(id, show) {
+    document.getElementById(id).style.display = show ? 'block' : 'none';
+    updateCost();
+  }
+
+  // Custom style toggle
+  document.querySelectorAll('input[name="imageStyle"]').forEach(r => {
+    r.addEventListener('change', function() {
+      document.getElementById('customStyleSection').style.display =
+        this.value === 'custom' ? 'block' : 'none';
+    });
+  });
+
+  // Char counters
+  function setupCounter(textareaId, counterId, max) {
+    const ta = document.getElementById(textareaId);
+    const ct = document.getElementById(counterId);
+    if (!ta || !ct) return;
+    ta.addEventListener('input', function() {
+      const len = this.value.length;
+      ct.textContent = `${len} / ${max}`;
+      ct.className = 'char-count' + (len > max * 0.9 ? (len >= max ? ' over' : ' warn') : '');
+    });
+  }
+
+  setupCounter('companyHighlights', 'highlightsCount', 500);
+  setupCounter('jobDescription', 'jobDescCount', 800);
+  setupCounter('benefits', 'benefitsCount', 600);
+
+  // Cost estimate
+  function updateCost() {
+    const hasJobDesc = document.getElementById('toggleJobDesc').checked;
+    const hasBenefits = document.getElementById('toggleBenefits').checked;
+    const baseContent = 0.02;
+    const extraContent = (hasJobDesc ? 0.01 : 0) + (hasBenefits ? 0.01 : 0);
+    const images = 0.08;
+    const total = (baseContent + extraContent + images).toFixed(2);
+    document.getElementById('costEstimate').textContent = `~$${total}`;
+  }
+
+  document.getElementById('toggleJobDesc').addEventListener('change', updateCost);
+  document.getElementById('toggleBenefits').addEventListener('change', updateCost);
+
+  // Salary negotiable toggle
+  document.getElementById('salaryNegotiable').addEventListener('change', function() {
+    const salaryInputs = document.querySelectorAll('#salaryMin, #salaryMax');
+    salaryInputs.forEach(i => {
+      i.disabled = this.checked;
+      i.style.opacity = this.checked ? '0.4' : '1';
+    });
+  });
+
+  // Clear form
+  function clearForm() {
+    if (!confirm('Xóa toàn bộ form?')) return;
+    document.getElementById('recruitForm').reset();
+    skills.length = 0;
+    renderTags();
+    document.getElementById('jobDescSection').style.display = 'none';
+    document.getElementById('benefitsSection').style.display = 'none';
+    document.getElementById('customStyleSection').style.display = 'none';
+    updateCost();
+  }
+
+  // Submit
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (skills.length === 0) {
+      alert('Vui lòng thêm ít nhất 1 kỹ năng / yêu cầu.');
+      document.getElementById('skillInput').focus();
+      return;
+    }
+
+    const btn = document.getElementById('generateBtn');
+    btn.classList.add('loading');
+    btn.innerHTML = '<div class="spinner"></div><span>Đang xử lý...</span>';
+
+    const formData = collectFormData();
+    console.log('Form data:', formData);
+
+    // TODO: Bước 2 — gọi API
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span class="btn-icon">✦</span><span>Tạo bài tuyển dụng</span>';
+      alert('UI hoàn tất! Bước tiếp theo: kết nối OpenAI API.');
+    }, 1500);
+  }
+
+  function collectFormData() {
+    return {
+      jobTitle: document.getElementById('jobTitle').value,
+      jobLevel: document.getElementById('jobLevel').value,
+      headcount: document.getElementById('headcount').value,
+      workType: document.getElementById('workType').value,
+      skills: [...skills],
+      salary: {
+        min: document.getElementById('salaryMin').value,
+        max: document.getElementById('salaryMax').value,
+        currency: document.getElementById('salaryCurrency').value,
+        negotiable: document.getElementById('salaryNegotiable').checked,
+      },
+      companyHighlights: document.getElementById('companyHighlights').value,
+      jobDescription: document.getElementById('toggleJobDesc').checked
+        ? document.getElementById('jobDescription').value : null,
+      benefits: document.getElementById('toggleBenefits').checked
+        ? document.getElementById('benefits').value : null,
+      imageStyle: document.querySelector('input[name="imageStyle"]:checked').value,
+      customStyle: document.getElementById('customStyle').value || null,
+    };
+  }
+</script>
+</body>
+</html>
