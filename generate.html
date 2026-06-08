@@ -901,7 +901,7 @@ async function genContent(fd, key) {
   return data.choices[0].message.content.trim();
 }
 
-// ─── DALL-E 3 image gen ───────────────────────────────────────
+// ─── DALL-E 3 image gen (trả về base64 để tránh CORS) ────────
 async function genImage(prompt, size, key) {
   const res = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
@@ -915,7 +915,7 @@ async function genImage(prompt, size, key) {
       n:       1,
       size:    size,
       quality: 'standard',
-      response_format: 'url',
+      response_format: 'b64_json', // ← base64 thay vì URL, tránh CORS
     }),
   });
   if (!res.ok) {
@@ -923,7 +923,7 @@ async function genImage(prompt, size, key) {
     throw new Error('DALL-E: ' + (err.error?.message || `HTTP ${res.status}`));
   }
   const data = await res.json();
-  return data.data[0].url;
+  return 'data:image/png;base64,' + data.data[0].b64_json;
 }
 
 // ─── Canvas compositing ───────────────────────────────────────
@@ -1010,9 +1010,9 @@ function wrapText(ctx, text, x, y, maxW, lineH) {
 function loadImg(src) {
   return new Promise((res, rej) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    if (src.startsWith('http')) img.crossOrigin = 'anonymous';
     img.onload  = () => res(img);
-    img.onerror = () => rej(new Error('Failed to load image'));
+    img.onerror = (e) => rej(new Error('Failed to load image: ' + src.substring(0,80)));
     img.src = src;
   });
 }
